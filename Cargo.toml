@@ -1,0 +1,15 @@
+[package]
+name = "zellij-cn-ui"
+version = "0.1.0"
+edition = "2021"
+description = "A Chinese tab-bar and status-bar plugin for Zellij"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+unicode-width = "0.2"
+zellij-tile = "0.44.3"
+
+[dev-dependencies]
