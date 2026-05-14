@@ -102,11 +102,20 @@ sed -i.bak "s#__PLUGIN_PATH__#$PLUGIN_PATH#g" "$HOME/.cache/org.Zellij-Contribut
 
 ### 4. 启动中文界面布局
 
-复制到 `~/.config/zellij/layouts` 后，可以这样启动：
+布局放到 `~/.config/zellij/layouts` 后，可以这样启动：
 
 ```bash
 zellij --layout zellij-cn-ui
 ```
+
+如果想让 Zellij 默认就启动中文界面，可以把布局文件复制成默认布局文件名：
+
+```bash
+cp ~/.config/zellij/layouts/zellij-cn-ui.kdl ~/.config/zellij/layouts/default.kdl
+zellij
+```
+
+这样以后直接运行 `zellij`，就会优先使用这个中文布局。另一种方式是在 `~/.config/zellij/config.kdl` 中设置 `default_layout "zellij-cn-ui"`。
 
 如果已经有旧会话在运行，建议先退出或杀掉旧会话，再重新打开：
 
@@ -114,89 +123,6 @@ zellij --layout zellij-cn-ui
 zellij list-sessions
 zellij kill-session 会话名
 zellij --layout zellij-cn-ui
-```
-
-## 源码构建
-
-如果你想自己修改源码，或者自己打包发布版，再使用这一节。
-
-### 1. 构建插件
-
-先安装 WASM 编译目标，再构建插件：
-
-```bash
-rustup target add wasm32-wasip1
-cargo build --release --target wasm32-wasip1
-```
-
-构建成功后，插件文件在这里：
-
-```text
-target/wasm32-wasip1/release/zellij-cn-ui.wasm
-```
-
-开发时可以跑完整测试：
-
-```bash
-cargo test
-cargo build --release --target wasm32-wasip1
-```
-
-如果你的 Rust 工具链仍使用旧目标名，可以先运行 `rustup target add wasm32-wasi`。
-
-### 2. 本地源码布局
-
-本仓库的 `layouts/zellij-cn-ui.kdl` 是模板，里面的 `__PROJECT_DIR__` 需要替换成当前项目目录：
-
-```bash
-PROJECT_DIR="$(pwd)"
-sed -i.bak "s#__PROJECT_DIR__#$PROJECT_DIR#g" layouts/zellij-cn-ui.kdl
-zellij --layout layouts/zellij-cn-ui.kdl
-```
-
-## 发布给别人
-
-你可以把这个文件上传到 GitHub Release 或其他下载页面：
-
-```text
-target/wasm32-wasip1/release/zellij-cn-ui.wasm
-```
-
-普通用户只需要下载这个 `.wasm` 文件，放到 `~/.local/share/zellij/plugins/zellij-cn-ui.wasm`，再按“小白快速使用”创建布局即可。
-
-## 进阶配置
-
-除了使用布局文件，也可以把下面配置加入 Zellij 配置文件中的 `plugins` 块，替换 `/path/to/zellij-cn-ui` 为本仓库的绝对路径：
-
-```bash
-mkdir -p "$HOME/Library/Caches/org.Zellij-Contributors.Zellij"
-cat > "$HOME/Library/Caches/org.Zellij-Contributors.Zellij/permissions.kdl" <<'EOF'
-"/path/to/zellij-cn-ui/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
-    ReadApplicationState
-}
-"file:/path/to/zellij-cn-ui/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
-    ReadApplicationState
-}
-EOF
-```
-
-```kdl
-plugins {
-    tab-bar location="file:/path/to/zellij-cn-ui/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
-        skip_plugin_cache true
-        bar "tab"
-    }
-    status-bar location="file:/path/to/zellij-cn-ui/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
-        skip_plugin_cache true
-        bar "status"
-    }
-}
-```
-
-然后正常启动 Zellij 即可。如果只想临时测试，仍然推荐布局方式：
-
-```bash
-zellij --layout layouts/zellij-cn-ui.kdl
 ```
 
 ## 功能
@@ -228,9 +154,12 @@ zellij --layout layouts/zellij-cn-ui.kdl
 1. 先按上面的权限缓存示例预授权 `ReadApplicationState`。
 2. 确认使用的是新构建产物，并重新启动 Zellij 会话。
 3. 开发调试时保留 `skip_plugin_cache true`，避免 Zellij 继续使用旧 wasm。
-4. 仍有问题时查看日志：
+4. 仍有问题时查看日志。先运行 `zellij setup --check`，它会显示当前机器的日志和缓存目录：
 
 ```bash
 zellij setup --check
-tail -f /var/folders/70/zgm1mmkn27n3krn_sthq875c0000gn/T/zellij-501/zellij-log/zellij.log
 ```
+
+## 开发
+
+想修改源码、自己构建 wasm、或打包 Release，请看 [开发文档](DEVELOPMENT.md)。
