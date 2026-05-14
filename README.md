@@ -30,16 +30,17 @@ mkdir -p ~/.config/zellij/layouts
 cp layouts/zellij-cn-ui.kdl ~/.config/zellij/layouts/zellij-cn-ui.kdl
 ```
 
-如果你的项目不在 `/Users/ilove/Project/Zellij_zh_CN`，请打开刚复制的布局文件，把里面的 wasm 路径改成你机器上的绝对路径：
+复制后，把布局里的 `__PROJECT_DIR__` 自动替换成当前项目的绝对路径：
 
 ```bash
-vim ~/.config/zellij/layouts/zellij-cn-ui.kdl
+PROJECT_DIR="$(pwd)"
+sed -i.bak "s#__PROJECT_DIR__#$PROJECT_DIR#g" ~/.config/zellij/layouts/zellij-cn-ui.kdl
 ```
 
-要改的是两处 `location`：
+替换后，布局里的两处 `location` 应该类似这样：
 
 ```kdl
-plugin location="file:/你的项目绝对路径/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+plugin location="file:/path/to/zellij-cn-ui/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
     skip_plugin_cache true
     bar "tab"
 }
@@ -55,30 +56,35 @@ macOS 默认缓存路径是：
 mkdir -p "$HOME/Library/Caches/org.Zellij-Contributors.Zellij"
 ```
 
-然后创建权限文件。把 `/你的项目绝对路径` 换成真实路径：
+然后创建权限文件：
 
 ```bash
+PROJECT_DIR="$(pwd)"
 cat > "$HOME/Library/Caches/org.Zellij-Contributors.Zellij/permissions.kdl" <<'EOF'
-"/你的项目绝对路径/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+"__PROJECT_DIR__/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
     ReadApplicationState
 }
-"file:/你的项目绝对路径/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+"file:__PROJECT_DIR__/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
     ReadApplicationState
 }
 EOF
+sed -i.bak "s#__PROJECT_DIR__#$PROJECT_DIR#g" "$HOME/Library/Caches/org.Zellij-Contributors.Zellij/permissions.kdl"
 ```
 
-如果你就是在本机这个项目目录使用，可以直接写：
+Linux 用户的 Zellij 缓存目录通常是 `~/.cache/org.Zellij-Contributors.Zellij`，可以这样写：
 
 ```bash
-cat > "$HOME/Library/Caches/org.Zellij-Contributors.Zellij/permissions.kdl" <<'EOF'
-"/Users/ilove/Project/Zellij_zh_CN/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+PROJECT_DIR="$(pwd)"
+mkdir -p "$HOME/.cache/org.Zellij-Contributors.Zellij"
+cat > "$HOME/.cache/org.Zellij-Contributors.Zellij/permissions.kdl" <<'EOF'
+"__PROJECT_DIR__/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
     ReadApplicationState
 }
-"file:/Users/ilove/Project/Zellij_zh_CN/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+"file:__PROJECT_DIR__/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
     ReadApplicationState
 }
 EOF
+sed -i.bak "s#__PROJECT_DIR__#$PROJECT_DIR#g" "$HOME/.cache/org.Zellij-Contributors.Zellij/permissions.kdl"
 ```
 
 ### 4. 启动中文界面布局
@@ -89,10 +95,12 @@ EOF
 zellij --layout zellij-cn-ui
 ```
 
-也可以不复制布局，直接从项目目录启动：
+也可以不复制布局，直接从项目目录启动。注意这种方式需要先把 `layouts/zellij-cn-ui.kdl` 里的 `__PROJECT_DIR__` 替换成真实路径：
 
 ```bash
-zellij --layout /Users/ilove/Project/Zellij_zh_CN/layouts/zellij-cn-ui.kdl
+PROJECT_DIR="$(pwd)"
+sed -i.bak "s#__PROJECT_DIR__#$PROJECT_DIR#g" layouts/zellij-cn-ui.kdl
+zellij --layout layouts/zellij-cn-ui.kdl
 ```
 
 如果已经有旧会话在运行，建议先退出或杀掉旧会话，再重新打开：
@@ -121,15 +129,15 @@ cargo build --release --target wasm32-wasi
 
 ## 进阶配置
 
-除了使用布局文件，也可以把下面配置加入 Zellij 配置文件中的 `plugins` 块，替换 `/ABS/PATH` 为本仓库的绝对路径：
+除了使用布局文件，也可以把下面配置加入 Zellij 配置文件中的 `plugins` 块，替换 `/path/to/zellij-cn-ui` 为本仓库的绝对路径：
 
 ```bash
 mkdir -p "$HOME/Library/Caches/org.Zellij-Contributors.Zellij"
 cat > "$HOME/Library/Caches/org.Zellij-Contributors.Zellij/permissions.kdl" <<'EOF'
-"/ABS/PATH/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+"/path/to/zellij-cn-ui/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
     ReadApplicationState
 }
-"file:/ABS/PATH/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+"file:/path/to/zellij-cn-ui/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
     ReadApplicationState
 }
 EOF
@@ -137,11 +145,11 @@ EOF
 
 ```kdl
 plugins {
-    tab-bar location="file:/ABS/PATH/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+    tab-bar location="file:/path/to/zellij-cn-ui/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
         skip_plugin_cache true
         bar "tab"
     }
-    status-bar location="file:/ABS/PATH/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+    status-bar location="file:/path/to/zellij-cn-ui/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
         skip_plugin_cache true
         bar "status"
     }
