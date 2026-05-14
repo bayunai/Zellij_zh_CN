@@ -2,18 +2,114 @@
 
 这是一个独立的 Zellij Rust/WASM 插件，用同一个 wasm 产物替换默认 `tab-bar` 和 `status-bar`，显示中文标签栏与状态栏。
 
-## 构建
+## 小白快速使用
+
+下面假设你已经安装了 `zellij`、`rustup` 和 `cargo`，并且当前目录就是这个项目目录。
+
+### 1. 构建插件
+
+先安装 WASM 编译目标，再构建插件：
 
 ```bash
 rustup target add wasm32-wasip1
-cargo test
 cargo build --release --target wasm32-wasip1
 ```
 
-产物路径：
+构建成功后，插件文件在这里：
 
 ```text
 target/wasm32-wasip1/release/zellij-cn-ui.wasm
+```
+
+### 2. 把布局放进 Zellij layouts 目录
+
+Zellij 默认会从 `~/.config/zellij/layouts` 读取自定义布局。创建目录，然后复制本项目提供的布局：
+
+```bash
+mkdir -p ~/.config/zellij/layouts
+cp layouts/zellij-cn-ui.kdl ~/.config/zellij/layouts/zellij-cn-ui.kdl
+```
+
+如果你的项目不在 `/Users/ilove/Project/Zellij_zh_CN`，请打开刚复制的布局文件，把里面的 wasm 路径改成你机器上的绝对路径：
+
+```bash
+vim ~/.config/zellij/layouts/zellij-cn-ui.kdl
+```
+
+要改的是两处 `location`：
+
+```kdl
+plugin location="file:/你的项目绝对路径/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+    skip_plugin_cache true
+    bar "tab"
+}
+```
+
+### 3. 预授权插件权限
+
+这个插件需要读取 Zellij 当前模式、标签、窗格数量。状态栏/标签栏是不可聚焦的 UI 插件，首次运行时权限提示可能无法接收键盘输入，所以建议先写入权限缓存。
+
+macOS 默认缓存路径是：
+
+```bash
+mkdir -p "$HOME/Library/Caches/org.Zellij-Contributors.Zellij"
+```
+
+然后创建权限文件。把 `/你的项目绝对路径` 换成真实路径：
+
+```bash
+cat > "$HOME/Library/Caches/org.Zellij-Contributors.Zellij/permissions.kdl" <<'EOF'
+"/你的项目绝对路径/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+    ReadApplicationState
+}
+"file:/你的项目绝对路径/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+    ReadApplicationState
+}
+EOF
+```
+
+如果你就是在本机这个项目目录使用，可以直接写：
+
+```bash
+cat > "$HOME/Library/Caches/org.Zellij-Contributors.Zellij/permissions.kdl" <<'EOF'
+"/Users/ilove/Project/Zellij_zh_CN/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+    ReadApplicationState
+}
+"file:/Users/ilove/Project/Zellij_zh_CN/target/wasm32-wasip1/release/zellij-cn-ui.wasm" {
+    ReadApplicationState
+}
+EOF
+```
+
+### 4. 启动中文界面布局
+
+复制到 `~/.config/zellij/layouts` 后，可以这样启动：
+
+```bash
+zellij --layout zellij-cn-ui
+```
+
+也可以不复制布局，直接从项目目录启动：
+
+```bash
+zellij --layout /Users/ilove/Project/Zellij_zh_CN/layouts/zellij-cn-ui.kdl
+```
+
+如果已经有旧会话在运行，建议先退出或杀掉旧会话，再重新打开：
+
+```bash
+zellij list-sessions
+zellij kill-session 会话名
+zellij --layout zellij-cn-ui
+```
+
+## 构建与测试
+
+开发时可以跑完整测试：
+
+```bash
+cargo test
+cargo build --release --target wasm32-wasip1
 ```
 
 如果你的 Rust 工具链仍使用旧目标名，可以尝试：
@@ -23,9 +119,9 @@ rustup target add wasm32-wasi
 cargo build --release --target wasm32-wasi
 ```
 
-## 配置
+## 进阶配置
 
-状态栏/标签栏是不可聚焦的 UI 插件，首次运行时权限提示可能无法接收键盘输入。建议先写入权限缓存，预授权本插件读取 Zellij 状态：
+除了使用布局文件，也可以把下面配置加入 Zellij 配置文件中的 `plugins` 块，替换 `/ABS/PATH` 为本仓库的绝对路径：
 
 ```bash
 mkdir -p "$HOME/Library/Caches/org.Zellij-Contributors.Zellij"
@@ -38,8 +134,6 @@ cat > "$HOME/Library/Caches/org.Zellij-Contributors.Zellij/permissions.kdl" <<'E
 }
 EOF
 ```
-
-把下面配置加入 Zellij 配置文件中的 `plugins` 块，替换 `/ABS/PATH` 为本仓库的绝对路径：
 
 ```kdl
 plugins {
@@ -54,7 +148,7 @@ plugins {
 }
 ```
 
-也可以使用测试布局：
+然后正常启动 Zellij 即可。如果只想临时测试，仍然推荐布局方式：
 
 ```bash
 zellij --layout layouts/zellij-cn-ui.kdl
