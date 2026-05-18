@@ -1,0 +1,141 @@
+// 复制到 ~/.config/zellij/themes/zellij-cn-ui-colors.kdl
+// 并在 ~/.config/zellij/config.kdl 里设置: theme "zellij-cn-ui-colors"
+themes {
+    zellij-cn-ui-colors {
+        black 35 38 48
+        bg 26 27 38
+        fg 210 215 225
+        red 249 51 87
+        green 158 206 106
+        yellow 255 200 80
+        blue 122 162 247
+        magenta 187 154 247
+        cyan 42 195 222
+        white 255 255 255
+
+        text_unselected {
+            base 210 215 225
+            background 35 38 48
+            emphasis_0 255 200 80
+            emphasis_1 42 195 222
+            emphasis_2 158 206 106
+            emphasis_3 187 154 247
+        }
+        text_selected {
+            base 255 255 255
+            background 50 54 66
+            emphasis_0 255 200 80
+            emphasis_1 42 195 222
+            emphasis_2 158 206 106
+            emphasis_3 187 154 247
+        }
+        ribbon_unselected {
+            base 210 215 225
+            background 50 54 66
+            emphasis_0 255 200 80
+            emphasis_1 210 215 225
+            emphasis_2 122 162 247
+            emphasis_3 187 154 247
+        }
+        ribbon_selected {
+            base 255 255 255
+            background 70 110 180
+            emphasis_0 255 200 80
+            emphasis_1 255 255 255
+            emphasis_2 158 206 106
+            emphasis_3 122 162 247
+        }
+        table_title {
+            base 158 206 106
+            background 0
+            emphasis_0 255 200 80
+            emphasis_1 42 195 222
+            emphasis_2 158 206 106
+            emphasis_3 187 154 247
+        }
+        table_cell_unselected {
+            base 210 215 225
+            background 35 38 48
+            emphasis_0 255 200 80
+            emphasis_1 42 195 222
+            emphasis_2 158 206 106
+            emphasis_3 187 154 247
+        }
+        table_cell_selected {
+            base 255 255 255
+            background 50 54 66
+            emphasis_0 255 200 80
+            emphasis_1 42 195 222
+            emphasis_2 158 206 106
+            emphasis_3 187 154 247
+        }
+        list_unselected {
+            base 210 215 225
+            background 35 38 48
+            emphasis_0 255 200 80
+            emphasis_1 42 195 222
+            emphasis_2 158 206 106
+            emphasis_3 187 154 247
+        }
+        list_selected {
+            base 255 255 255
+            background 50 54 66
+            emphasis_0 255 200 80
+            emphasis_1 42 195 222
+            emphasis_2 158 206 106
+            emphasis_3 187 154 247
+        }
+        frame_selected {
+            base 158 206 106
+            background 0
+            emphasis_0 255 200 80
+            emphasis_1 42 195 222
+            emphasis_2 187 154 247
+            emphasis_3 0
+        }
+        frame_unselected {
+            base 80 85 95
+            background 0
+            emphasis_0 255 200 80
+            emphasis_1 42 195 222
+            emphasis_2 187 154 247
+            emphasis_3 0
+        }
+        frame_highlight {
+            base 255 200 80
+            background 0
+            emphasis_0 187 154 247
+            emphasis_1 255 200 80
+            emphasis_2 255 200 80
+            emphasis_3 255 200 80
+        }
+        exit_code_success {
+            base 158 206 106
+            background 0
+            emphasis_0 42 195 222
+            emphasis_1 50 54 66
+            emphasis_2 187 154 247
+            emphasis_3 122 162 247
+        }
+        exit_code_error {
+            base 249 51 87
+            background 0
+            emphasis_0 255 200 80
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
+        }
+        multiplayer_user_colors {
+            player_1 187 154 247
+            player_2 122 162 247
+            player_3 0
+            player_4 255 200 80
+            player_5 42 195 222
+            player_6 0
+            player_7 249 51 87
+            player_8 0
+            player_9 0
+            player_10 0
+        }
+    }
+}

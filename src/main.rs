@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use zellij_cn_ui::pane_count::content_pane_count;
 use zellij_cn_ui::render_status::{
     active_tab, render_permission_pending, render_status_bar, StatusNotice,
 };
@@ -22,6 +23,7 @@ struct State {
     bar: BarKind,
     mode_info: Option<ModeInfo>,
     tabs: Vec<TabView>,
+    pane_manifest: PaneManifest,
     notice: Option<StatusNotice>,
     permission_granted: bool,
 }
@@ -64,13 +66,7 @@ impl ZellijPlugin for State {
             Event::TabUpdate(tabs) => {
                 self.tabs = tabs
                     .into_iter()
-                    .map(|tab| TabView {
-                        position: tab.position,
-                        name: tab.name,
-                        active: tab.active,
-                        pane_count: tab.selectable_tiled_panes_count
-                            + tab.selectable_floating_panes_count,
-                    })
+                    .map(|tab| self.tab_view_from_info(tab))
                     .collect();
                 true
             }
@@ -88,7 +84,11 @@ impl ZellijPlugin for State {
                 }
                 false
             }
-            Event::PaneUpdate(_) => true,
+            Event::PaneUpdate(manifest) => {
+                self.pane_manifest = manifest;
+                self.refresh_tab_pane_counts();
+                true
+            }
             _ => false,
         }
     }
@@ -116,6 +116,37 @@ impl ZellijPlugin for State {
                     "{}",
                     render_status_bar(mode, active_tab(&self.tabs), self.notice, rows, cols)
                 );
+            }
+        }
+    }
+}
+
+impl State {
+    fn tab_view_from_info(&self, tab: TabInfo) -> TabView {
+        let fallback = tab.selectable_tiled_panes_count + tab.selectable_floating_panes_count;
+        let pane_count = self
+            .pane_manifest
+            .panes
+            .get(&tab.position)
+            .map(|panes| content_pane_count(panes))
+            .filter(|&count| count > 0)
+            .unwrap_or(fallback);
+
+        TabView {
+            position: tab.position,
+            name: tab.name,
+            active: tab.active,
+            pane_count,
+        }
+    }
+
+    fn refresh_tab_pane_counts(&mut self) {
+        for tab in &mut self.tabs {
+            if let Some(panes) = self.pane_manifest.panes.get(&tab.position) {
+                let count = content_pane_count(panes);
+                if count > 0 {
+                    tab.pane_count = count;
+                }
             }
         }
     }

@@ -65,6 +65,14 @@ pub fn visible_width(text: &str) -> usize {
     display_width(&strip_ansi(text))
 }
 
+pub fn pad_visible_to_width(text: &str, target_width: usize) -> String {
+    let width = visible_width(text);
+    if width >= target_width {
+        return text.to_owned();
+    }
+    format!("{}{}", text, " ".repeat(target_width - width))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -85,6 +93,12 @@ mod tests {
     #[test]
     fn pads_text_to_display_width() {
         assert_eq!(display_width(&pad_to_width("普通", 6)), 6);
+    }
+
+    #[test]
+    fn pads_ansi_text_by_visible_width() {
+        let colored = "\x1b[36m会话\x1b[39;22m";
+        assert_eq!(visible_width(&pad_visible_to_width(colored, 10)), 10);
     }
 
     #[test]

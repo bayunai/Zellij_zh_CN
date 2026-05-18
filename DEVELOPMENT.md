@@ -32,12 +32,21 @@ rustup target add wasm32-wasi
 
 ## 本地源码布局
 
-本仓库的 `layouts/zellij-cn-ui.kdl` 是模板，里面的 `__PROJECT_DIR__` 需要替换成当前项目目录：
+`layouts/zellij-cn-ui.kdl` 是模板，内含占位符 `__PROJECT_DIR__`，**不能直接** `zellij --layout layouts/zellij-cn-ui.kdl`，否则插件路径无效、顶/底栏会空白。
+
+推荐用开发脚本（自动替换路径并写入 wasm 权限）：
+
+```bash
+chmod +x scripts/zellij-dev.sh
+./scripts/zellij-dev.sh
+```
+
+或手动替换后启动：
 
 ```bash
 PROJECT_DIR="$(pwd)"
-sed -i.bak "s#__PROJECT_DIR__#$PROJECT_DIR#g" layouts/zellij-cn-ui.kdl
-zellij --layout layouts/zellij-cn-ui.kdl
+sed "s#__PROJECT_DIR__#$PROJECT_DIR#g" layouts/zellij-cn-ui.kdl > layouts/.dev.kdl
+zellij --layout layouts/.dev.kdl
 ```
 
 ## 发布给别人

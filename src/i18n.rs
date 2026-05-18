@@ -117,10 +117,10 @@ const NORMAL_GROUPS: &[HintGroup] = &[
 ];
 
 const LOCKED_GROUPS: &[HintGroup] = &[HintGroup {
-    title: "锁定",
-    prefix: None,
+    title: "",
+    prefix: Some("Ctrl"),
     items: &[HintItem {
-        key: "Ctrl+g",
+        key: "g",
         label: "解锁",
         priority: 1,
     }],
